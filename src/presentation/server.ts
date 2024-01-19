@@ -3,6 +3,7 @@ import { RabbitMq } from '../infrastructure/eventBus/rabbitmq';
 import { SequelizeEvent } from '../infrastructure/database/models/Events';
 import { SequelizeField } from '../infrastructure/database/models/Fields';
 import { SequelizeProperty } from '../infrastructure/database/models/Properties';
+import { sequelize } from '../infrastructure/database/sequelize';
 
 interface Options{
     port?: number;
@@ -26,9 +27,7 @@ export class Server {
 
         this.app.use(this.routes)
         
-        await SequelizeField.sync({force:true})
-        await SequelizeProperty.sync({force:true})
-        await SequelizeEvent.sync({force:true})
+        sequelize.sync({force:true})
 
         await RabbitMq.connection()
         await RabbitMq.setQueue()
