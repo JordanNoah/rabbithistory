@@ -1,9 +1,10 @@
 import {ServerProperties, Options} from "amqplib";
 import { Processor } from "./processor";
+import AppConfig from "../../domain/config";
 
 export const config:Options.Connect = {
-    username:'accion-docente-beta',
-    password:'LTKMjxKbMPB0',
+    username:AppConfig.RABBIT_USERNAME,
+    password:AppConfig.RABBIT_PASSWORD,
     protocol:'amqp',
     hostname:'34.135.166.250',
     port:5672,

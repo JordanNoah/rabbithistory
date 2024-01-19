@@ -5,6 +5,8 @@ import { Sequelize } from "sequelize";
 import { SequelizeProperty } from "../database/models/Properties";
 import { SequelizeField } from "../database/models/Fields";
 import { SequelizeEvent } from "../database/models/Events";
+import AppConfig from "../../domain/config";
+
 
 export class RabbitMq{
 
@@ -19,7 +21,7 @@ export class RabbitMq{
 
     public static async setQueue(){
         await this._channel.assertQueue(
-            'teaching-action.moodle_ju',
+            AppConfig.RABBIT_QUEUE,
             assertQueue
         )
         await this._channel.assertExchange(
@@ -30,7 +32,7 @@ export class RabbitMq{
             }
         )
         await this._channel.bindQueue(
-            'teaching-action.moodle_ju',
+            AppConfig.RABBIT_QUEUE,
             'sagittarius-a',
             'sagittarius-a'
         )
@@ -38,11 +40,10 @@ export class RabbitMq{
 
     public static async consume() {
         await this._channel.consume(
-            'teaching-action.moodle_ju',
+            AppConfig.RABBIT_QUEUE,
             async (msg)=>{
                 const [error,eventDto] = EventDto.create(msg!)
                 await this.messageProcessor(eventDto!)
-                console.log(eventDto);
             }
         )
     }
