@@ -11,7 +11,7 @@ export class PropertiesDto {
         public replyTo: string | undefined,
         public expiration: string | undefined, 
         public messageId: string | undefined,    
-        public timestamp: number, 
+        public timestamp: string | undefined, 
         public type: string,
         public userId: string | undefined,     
         public appId: string,
