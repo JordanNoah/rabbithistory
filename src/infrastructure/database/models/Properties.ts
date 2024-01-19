@@ -12,7 +12,7 @@ interface PropertyRow {
     replyTo?: string | null,
     expiration?: string | null,
     messageId?: string | null,
-    timestamp?: number | null,
+    timestamp?: string | null,
     type?: string | null,
     userId?: string | null,
     appId?: string | null,
@@ -32,7 +32,7 @@ export class SequelizeProperty extends Model<PropertyRow,Omit<PropertyRow,'id'>>
     declare replyTo: string | null
     declare expiration: string | null
     declare messageId: string | null
-    declare timestamp: number | null
+    declare timestamp: string | null
     declare type: string | null
     declare userId: string | null
     declare appId: string | null
@@ -84,7 +84,7 @@ SequelizeProperty.init({
         allowNull: true
     },
     timestamp:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.TEXT,
         allowNull: true
     },
     type:{
