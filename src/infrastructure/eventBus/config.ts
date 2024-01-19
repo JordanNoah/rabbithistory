@@ -5,10 +5,10 @@ import AppConfig from "../../domain/config";
 export const config:Options.Connect = {
     username:AppConfig.RABBIT_USERNAME,
     password:AppConfig.RABBIT_PASSWORD,
-    protocol:'amqp',
-    hostname:'34.135.166.250',
+    protocol:AppConfig.RABBIT_PROTOCOL,
+    hostname:AppConfig.RABBIT_HOSTNAME,
     port:5672,
-    vhost:'beta'
+    vhost:AppConfig.RABBIT_VHOST
 }
 
 export const assertQueue: Options.AssertQueue = {

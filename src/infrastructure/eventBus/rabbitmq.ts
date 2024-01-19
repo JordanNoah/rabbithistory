@@ -25,16 +25,16 @@ export class RabbitMq{
             assertQueue
         )
         await this._channel.assertExchange(
-            "sagittarius-a",
-            "fanout",
+            AppConfig.RABBIT_EXCHANGE,
+            AppConfig.RABBIT_TYPE_EXCHANGE,
             {
                 durable:true
             }
         )
         await this._channel.bindQueue(
             AppConfig.RABBIT_QUEUE,
-            'sagittarius-a',
-            'sagittarius-a'
+            AppConfig.RABBIT_EXCHANGE,
+            AppConfig.RABBIT_ROUTING_KEY
         )
     }
 
@@ -79,6 +79,8 @@ export class RabbitMq{
             propertiesId:createdProperty.id,
             content:msg.content
         })
+
+        console.log(`Evento guardado: ${msg.properties.messageId}`)
         //this._channel.ack(msg)
     }
 }
