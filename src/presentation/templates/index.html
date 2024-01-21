@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -16,7 +17,7 @@
         <v-app>
             <v-main>
                 <v-container>
-                    <v-data-table :headers="headers" :items="events" :options.sync="options"
+                    <v-data-table :headers="headers" :items="events" :options.sync="options" sort-by="id" :sort-desc="[false]"
                         :server-items-length="totalEvents" :loading="loading" class="elevation-1"></v-data-table>
                 </v-container>
             </v-main>

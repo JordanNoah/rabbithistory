@@ -3,7 +3,7 @@ import path from "path";
 import { SequelizeEvent } from "../infrastructure/database/models/Events";
 import { SequelizeField } from "../infrastructure/database/models/Fields";
 import { SequelizeProperty } from "../infrastructure/database/models/Properties";
-import { Order } from "sequelize";
+import { Order, OrderItem, Sequelize } from "sequelize";
 
 type CustomOrder = Array<[string | Record<string, 'ASC' | 'DESC'>, 'ASC' | 'DESC']>;
 
@@ -16,38 +16,24 @@ export class AppRoutes {
         })
         router.post('/api/events', async (req,res) => {
             var body = req.body;
-console.log(body);
-
             const page = body.options.page
             const pageSize = body.options.itemsPerPage
-            const offset = (page - 1) * pageSize
+            const offset = (page - 1) * pageSize           
 
-            const sorting: [Record<string, 'ASC' | 'DESC'>, 'ASC' | 'DESC'][] = body.options.sortBy.map(
-                (sortBy: string, index: number) => {
-                  const sortParts = sortBy.split('.');
-              
-                  const order: Record<string, 'ASC' | 'DESC'> = sortParts.reduce(
-                    (acc, prop, i) => {
-                      if (i === sortParts.length - 1) {
-                        acc[prop] = body.options.sortDesc[index] ? 'DESC' : 'ASC';
-                      } else {
-                        acc[prop] = acc[prop] || {} as unknown as Record<string, 'ASC' | 'DESC'>;
-                        acc = acc[prop] as unknown as Record<string, 'ASC' | 'DESC'>;
-                      }
-                      return acc;
-                    },
-                    {} as Record<string, 'ASC' | 'DESC'>
-                  );
-              
-                  return [order, body.options.sortDesc[index] ? 'DESC' : 'ASC'];
-                }
-              );
+            console.log(body.options);
+    
+            var sorting: OrderItem[];
             
-              function convertToSequelizeOrder(sorting: CustomOrder): Order {
-                return sorting.map(([order, direction]) => [order, direction]) as Order;
-              }
-              console.log(convertToSequelizeOrder(sorting));
-              
+            if(body.options.sortBy.length > 0){
+                var typeSorting = body.options.sortBy[0].split(".")  
+                if(typeSorting.length > 1){
+                    sorting = [[typeSorting[0],typeSorting[1],body.options.sortDesc[0]?'ASC':'DESC']]
+                }else{
+                    sorting = [[body.options.sortBy[0],body.options.sortDesc[0]?'ASC':'DESC']];
+                }
+            }else{
+                sorting = [];
+            }
 
             var events = await SequelizeEvent.findAll({
                 include:[
@@ -62,7 +48,7 @@ console.log(body);
                 ],
                 offset:offset,
                 limit:pageSize,
-                order:convertToSequelizeOrder(sorting)
+                order:sorting
             })
             var total = await SequelizeEvent.count()
             res.json(

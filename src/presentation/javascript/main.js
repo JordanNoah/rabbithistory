@@ -12,6 +12,7 @@ new Vue({
         options: {},
         totalEvents: 0,
         loading: false,
+        io: io()
     },
     watch: {
         options: {
@@ -29,11 +30,15 @@ new Vue({
             }).then((res) => {
                 this.events = res.data.events
                 this.totalEvents = res.data.total
-                console.log(this.events);
             }).catch((err) =>{
                 console.log(err);
             }).finally(() => {
                 this.loading = false
+                this.io.on('new_event',(msg) => {
+                    this.totalEvents = msg.total
+                    this.events.unshift(msg.event)
+                    this.events.pop()
+                })
             })
         }
     }

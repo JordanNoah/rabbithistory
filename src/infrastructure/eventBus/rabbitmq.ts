@@ -6,17 +6,21 @@ import { SequelizeProperty } from "../database/models/Properties";
 import { SequelizeField } from "../database/models/Fields";
 import { SequelizeEvent } from "../database/models/Events";
 import AppConfig from "../../domain/config";
+import SocketIo from 'socket.io'
+import Semaphore from 'semaphore-async-await';
 
 
 export class RabbitMq{
 
     private static _connection: Connection;
     private static _channel: Channel;
+    private static _io: SocketIo.Server;
 
-    public static async connection() {
+    public static async connection(io:SocketIo.Server) {
         let sconnection = await connect(config)
         this._connection = sconnection;
         this._channel = await this._connection.createConfirmChannel();
+        this._io = io;
     }
 
     public static async setQueue(){
@@ -39,11 +43,17 @@ export class RabbitMq{
     }
 
     public static async consume() {
+        const concurrencySemaphore = new Semaphore(5);
         await this._channel.consume(
             AppConfig.RABBIT_QUEUE,
             async (msg)=>{
+                await concurrencySemaphore.acquire();
+                
                 const [error,eventDto] = EventDto.create(msg!)
                 await this.messageProcessor(eventDto!)
+
+                concurrencySemaphore.release();
+                
             }
         )
     }
@@ -80,7 +90,20 @@ export class RabbitMq{
             content:msg.content
         })
 
-        console.log(`Evento guardado: ${msg.properties.messageId}`)
+        var total = await SequelizeEvent.count()
+
+        this._io.sockets.emit('new_event',{total:total,event:{
+            id:createEvent.id,
+            content:createEvent.content,
+            field:createdFields,
+            fieldsId:createEvent.fieldsId,
+            propertiesId:createEvent.propertiesId,
+            property:createdProperty,
+            updatedAt:createEvent.updatedAt,
+            createdAt:createEvent.createdAt
+        }})
+        console.log(`Event saved: ${createEvent.id}`);
+        
         //this._channel.ack(msg)
     }
 }
